@@ -1,0 +1,2 @@
+h1 ip route add default via 192.168.10.16
+h2 ip route add default via 192.168.10.16
