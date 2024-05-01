@@ -1,0 +1,9 @@
+websockets
+ocpp
+aioconsole
+pyyaml
+flask
+requests
+click
+cryptography
+mitmproxy

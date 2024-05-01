@@ -1,0 +1,24 @@
+accepted_tokens:
+  - type: ISO14443
+    id_token: '11223344'
+  - type: ISO14443
+    id_token: '11223344556677'
+  - type: ISO15693
+    id_token: '1122334455667788'
+
+accepted_chargers:
+  - vendor_name: EurecomCharge
+    model: 'E2507'
+    serial_number_regex: '^E2507-[0-9]{4}-[0-9]{4}$'
+  - vendor_name: EurecomCharge
+    model: 'E2508'
+    serial_number_regex: '^E2508-[0-9]{4}-[0-9]{4}$'
+
+security:
+  profile: 2
+  # allow_multiple_serial_numbers: 0 (No) | 1 (Yes) | 2 (No, but allows to steal)
+  allow_multiple_serial_numbers: 1
+  max_connected_clients: 100000
+  heartbeat_interval: 10
+
+
