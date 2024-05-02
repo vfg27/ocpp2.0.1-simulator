@@ -1,6 +1,6 @@
 # ocpp2.0.1-simulator
 ## Introduction
-Welcome to the repository for the OCPP Protocol Simulator! The goal of this project is to provide an extensive and flexible Open Charge Point Protocol (OCPP) emulator. The OCPP standard protocol facilitates communication between central management systems (CSMs) and electric vehicle (EV) charging stations. With the increasing global usage of electric vehicles, there is a growing need for trustworthy testing and simulation tools. This implementation supports **OCPP 2.0.1** version. It has been tested on a Ubuntu 22.04.4 LTS VMware Virtual Machine with Python 3.10.12. 
+Welcome to the repository for the OCPP Simulator! The goal of this project is to provide an extensive and flexible Open Charge Point Protocol (OCPP) emulator. The OCPP standard protocol facilitates communication between central management systems (CSMs) and electric vehicle (EV) charging stations. With the increasing global usage of electric vehicles, there is a growing need for trustworthy testing and simulation tools. This implementation supports **OCPP 2.0.1** version. It has been tested on a Ubuntu 22.04.4 LTS VMware Virtual Machine with Python 3.10.12. 
 ## Features
 * The emulation supports **OCPP Security Profile 1** and **OCPP Security Profile 1**. However, it can also be used without any Security Profile.
 * The emulator supports three modes of operation (allow_multiple_serial_numbers): 0 (No) | 1 (Yes) | 2 (No, but allows to steal)
