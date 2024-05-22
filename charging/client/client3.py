@@ -16,7 +16,7 @@ from websockets import Subprotocol
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 logging.basicConfig(level=logging.ERROR)
@@ -25,6 +25,8 @@ certificate_accepted = False
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 context.load_verify_locations(CA_BUNDLE_PATH)
 context.check_hostname = False
+CERTIFICATE_PATH = os.path.join(os.getcwd(), 'certificate_cp.pem')
+CERTIFICATE_KEY_PATH =  os.path.join(os.getcwd(), 'private_key_cp.pem')
 #context.verify_mode = ssl.CERT_NONE
 
 
@@ -96,16 +98,17 @@ class ChargePointClient(Cp):
                 else:
                     print("Certificate not valid")
                     valid = False
-            certificate_accepted = valid
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             valid = False
-            certificate_accepted = False
+
+        certificate_accepted = valid
 
         if valid:
             status = "Accepted"
         else:
             status = "Rejected"
+
         return call_result.CertificateSignedPayload(
             status = status
         )
@@ -198,17 +201,15 @@ class ChargePointClient(Cp):
         responseCert = await self.call(requestCert)
         if responseCert == 'Rejected':
             print("Certificate petition denied")
-            return await ws.close()
         else: 
             print("Certificate petition accepted")
-        
 
     async def send_boot_notification(
         self,
         serial_number: str,
         model: str,
         vendor_name: str,
-        password: str,
+        certificate: str,
         async_runnable: Optional[Callable[['ChargePointClient'], Awaitable[None]]] = None
     ):
         if certificate_accepted:
@@ -219,7 +220,7 @@ class ChargePointClient(Cp):
                 #charge_point_vendor= vendor_name,
                 #charge_box_serial_number= serial_number,
                 reason="PowerUp",
-                custom_data={"vendorId": '', "password": password}
+                custom_data={"vendorId": '', "certificate": certificate}
             )
             response = await self.call(request)
 
@@ -265,10 +266,11 @@ async def launch_client(
     vendor_name: str = 'Vendor',
     server: str = "[::1]",
     port: int = 9000,
-    password: str = '', 
+    certificate: str = '', 
     async_runnable: Optional[Callable[[ChargePointClient], Awaitable[None]]] = None,
     printed_name: Optional[str] = None
     ):
+
     # Open websocket
     async with websockets.connect(
             f"ws://{server}:9001/{serial_number}", subprotocols=[Subprotocol("ocpp2.0.1")]
@@ -304,7 +306,7 @@ async def launch_client(
                     serial_number,
                     model,
                     vendor_name,
-                    password,
+                    certificate,
                     async_runnable
                 )
             )
@@ -323,6 +325,52 @@ async def wait_for_button_press(message: str):
     await aioconsole.ainput(f'\n{message} | Press any key to continue...\n')
 
 def _define_parameters():
+    # Check certificate
+    # Load the certificate and private key from files
+    try:
+        with open(CERTIFICATE_PATH, "rb") as f:
+            cert_data = f.read()
+            certificate = x509.load_pem_x509_certificate(cert_data, default_backend())
+
+        with open(CERTIFICATE_KEY_PATH, "rb") as f:
+            private_key = serialization.load_pem_private_key(f.read(), password=None, backend=default_backend())
+    except Exception as e:
+        print("Reading certicate/key failed:", e)
+
+    # Verify the certificate's signature
+    public_key = certificate.public_key()
+    try:
+        public_key.verify(
+            certificate.signature,
+            certificate.tbs_certificate_bytes,
+            padding.PKCS1v15(),
+            hashes.SHA256()
+        )
+        print("Signature verification successful")
+    except Exception as e:
+        print("Signature verification failed:", e)
+
+    # Check if the certificate has expired
+    if certificate.not_valid_before_utc <= datetime.now(certificate.not_valid_before_utc.tzinfo) <= certificate.not_valid_after_utc:
+        print("Certificate is currently valid")
+    else:
+        print("Certificate has expired")
+
+    print(f"Loading certificate...")
+
+    try:
+        with open(CERTIFICATE_PATH, "rb") as f:
+            cert_data = f.read()
+            certificate = x509.load_pem_x509_certificate(cert_data, default_backend())
+    except Exception as e:
+        print("Reading certicate failed:", e)
+
+    # DER encode the certificate into binary
+    der_encoded = certificate.public_bytes(encoding=serialization.Encoding.DER)
+
+    # Hex encode the DER encoded binary into a case-insensitive string
+    hex_encoded = der_encoded.hex().upper()
+
     ports={
         'server': "[fe80::e3a6:46e4:bff9:fb8e%ens33]",
         'port': 9000
@@ -331,8 +379,9 @@ def _define_parameters():
         'vendor_name': 'EurecomCharge',
         'model': 'E2507',
         'serial_number': 'E2507-8420-1274',
-        'password': 'HPEufO4u3IMl1G'
+        'certificate': hex_encoded
     }
     asyncio.run(launch_client(**config, **ports))
 if __name__ == '__main__':
     _define_parameters()
+

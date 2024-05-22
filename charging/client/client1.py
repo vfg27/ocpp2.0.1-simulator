@@ -215,30 +215,7 @@ def get_host_and_port() -> dict[str, str]:
 # Prints the given message and awaits for a button press, in an asynchronous way
 async def wait_for_button_press(message: str):
     await aioconsole.ainput(f'\n{message} | Press any key to continue...\n')
-'''
-@click.group()
-@click.option('--server', help='The IP of the server', prompt='IP', required=True, type=str)
-@click.option('--port', help='The port of the server', prompt='Port', required=True, type=str)
-@click.option('--vendor_name', help='The vendor name of the CP', prompt='Vendor name', required=True, type=str)
-@click.option('--model', help='The model of the CP', prompt='Model', required=True, type=str)
-@click.option('--serial', help='The serial number of the CP', prompt='Serial number', required=True, type=str)
-@click.option('--password', help='The password of the CP', prompt='Password', required=True, type=str)
-'''
-#server: str, port: str, vendor_name: str, model: str, serial: str, password: str
-'''
-def _define_parameters():
-    ports={
-        'server': click.prompt('The IP of the server'),
-        'port': click.prompt('The port of the server')
-    }
-    config= {
-        'vendor_name': click.prompt('The vendor name of the CP'),
-        'model': click.prompt('The model of the CP'),
-        'serial_number': click.prompt('The serial number of the CP'),
-        'password': click.prompt('The password of the CP')
-    }
-    asyncio.run(launch_client(**config, **ports))
-'''
+
 def _define_parameters():
     ports={
         'server': "[fe80::e3a6:46e4:bff9:fb8e%ens33]",
@@ -254,16 +231,3 @@ def _define_parameters():
 if __name__ == '__main__':
     _define_parameters()
 
-'''
-if __name__ == "__main__":
-    config = {
-        'vendor_name': 'EurecomCharge',
-        'model': 'E2507',
-        'serial_number': 'E2507-8420-1274',
-        'password': 'iwant' / "steal' OR '1=1'--"
-        'server': [fe80::e3a6:46e4:bff9:fb8e%ens33]
-        'port': 9000
-    }
-
-    asyncio.run(launch_client(**config, **get_host_and_port()))
-'''

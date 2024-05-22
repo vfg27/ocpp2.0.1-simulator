@@ -106,15 +106,74 @@ def _check_authorized(id_token: Dict) -> str:
 
 
 # Check if new CP is authorized based on vendor, model and serial number
-def _check_charger(vendor_name: str, model: str, serial_number: str, password: str) -> bool:
+def _check_charger(vendor_name: str, model: str, serial_number: str, certificate: str) -> bool:
     for i in ACCEPTED_CHARGES:
         # Check if vendor_name and model match
         if i['vendor_name'] == vendor_name and i['model'] == model:
             # Check if regex matches
             if re.match(i['serial_number_regex'], serial_number):
-                # Check correct password
-                if auth_user(serial_number, password):
-                    return True
+                try:
+                    # Check correct certificate
+                    valid = True
+                    # Convert the hex encoded string back to binary
+                    der_encoded = bytes.fromhex(certificate)
+
+                    # Load the X.509 certificate from DER encoded binary
+                    certificate = x509.load_der_x509_certificate(der_encoded, default_backend()) 
+
+                    # Verify the certificate's signature
+                    public_key = certificate.public_key()
+                    try:
+                        public_key.verify(
+                            certificate.signature,
+                            certificate.tbs_certificate_bytes,
+                            padding.PKCS1v15(),
+                            hashes.SHA256()
+                        )
+                        print("Signature verification successful")
+                        valid = True
+                    except Exception as e:
+                        print("Signature verification failed:", e)
+                        valid = False
+                    if valid:
+                    # Check if the certificate has expired
+                        if certificate.not_valid_before_utc <= datetime.now(certificate.not_valid_before_utc.tzinfo) <= certificate.not_valid_after_utc:
+                            print("Certificate is currently valid")
+                            valid = True
+                        else:
+                            print("Certificate has expired")
+                            valid = False
+                    if valid:
+                        # Check certificate issuer common name
+                        cn = None
+                        for attr in certificate.issuer:
+                            if attr.oid == x509.NameOID.COMMON_NAME:
+                                cn = attr.value
+                                break
+                        if cn == 'eurecom-ttp.fr':
+                            print("Certificate is signed by eurecom-ttp.fr")
+                            valid = True
+                        else:
+                            print("Certificate not valid")
+                            valid = False
+                    if valid:
+                        # Check certificate charge point id
+                        cn = None
+                        for attr in certificate.subject:
+                            if attr.oid == x509.NameOID.COMMON_NAME:
+                                cn = attr.value
+                                break
+                        if cn == serial_number:
+                            print(f"Certificate is from {serial_number}")
+                            valid = True
+                        else:
+                            print("Certificate not valid")
+                            valid = False
+                        return valid
+                except Exception as e:
+                    print(f"An unexpected error occurred: {e}")
+                    return False
+    
 
     # If no model match, return False
     return False
@@ -130,8 +189,8 @@ class ChargePointServer(Cp):
     last_reservation_id = 0
 
     # Periodically check for new connection
-    async def _check_connections(self, interval: int = 0.00000000001, id: str = '', ws : websockets = None):
-        await asyncio.sleep(3)
+    async def _check_connections(self, interval: int = 0.0000000001, id: str = '', ws : websockets = None):
+        await asyncio.sleep(1)
         while True:
             if duplicated_clients.get(id)==1:
                 del duplicated_clients[id]
@@ -208,11 +267,11 @@ class ChargePointServer(Cp):
     ):
         logging.info(f"Got boot notification from {charging_station} for reason {reason}")
 
-        charging_station["password"] = custom_data["password"]
+        charging_station["certificate"] = custom_data["certificate"]
 
         # Check if new CP has valid vendor, model and serial number
         self.is_booted = _check_charger(**charging_station)
-
+        
         if self.is_booted:
             if charging_station["serial_number"] in duplicated_clients:
                 duplicated_clients[charging_station["serial_number"]] = 1
@@ -403,7 +462,6 @@ async def on_connect(websocket, path):
     if (charge_point_id, cp) in connected_clients:
         # Remove from list of connected clients
         connected_clients.remove((charge_point_id, cp))
-
 
 async def on_connect_tls(websocket, path):
     # Check if protocol is specified

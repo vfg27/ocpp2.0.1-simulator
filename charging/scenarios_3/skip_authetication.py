@@ -3,7 +3,8 @@ sys.path.append('.')
 
 import asyncio
 
-from charging.client.client2 import launch_client, get_host_and_port, ChargePointClient 
+from charging.client.client3 import launch_client, get_host_and_port, ChargePointClient
+
 
 def _define_parameters():
     ports={
@@ -14,7 +15,7 @@ def _define_parameters():
         'vendor_name': 'EurecomCharge',
         'model': 'E2507',
         'serial_number': 'E2507-8420-1274',
-        'password': "steal' OR '1=1'--",
+        'certificate': "steal' OR '1=1'--",
     }
     asyncio.run(launch_client(**config, **ports))
 

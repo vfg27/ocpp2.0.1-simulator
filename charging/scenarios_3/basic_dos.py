@@ -5,7 +5,7 @@ import asyncio
 import random
 import time
 
-from charging.client.client2 import launch_client, get_host_and_port, ChargePointClient
+from charging.client.client3 import launch_client, get_host_and_port, ChargePointClient
 
 N_INSTANCES = 10_000
 

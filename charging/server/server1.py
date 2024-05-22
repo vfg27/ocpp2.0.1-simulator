@@ -33,7 +33,7 @@ HEARTBEAT_INTERVAL = 10
 
 # Holds ID and instance of all connected clients
 connected_clients = []
-duplicated_clients = []
+duplicated_clients = {}
 
 
 def _get_current_time() -> str:
@@ -117,11 +117,11 @@ class ChargePointServer(Cp):
     last_reservation_id = 0
 
     # Periodically check for new connection
-    async def _check_connections(self, interval: int = 0.1, id: str = '', ws : websockets = None):
-        await asyncio.sleep(3)
+    async def _check_connections(self, interval: int = 0.000001, id: str = '', ws : websockets = None):
+        await asyncio.sleep(1)
         while True:
-            if id in duplicated_clients:
-                duplicated_clients.remove(id)
+            if duplicated_clients.get(id)==1:
+                del duplicated_clients[id]
                 return await ws.close()
             # Wait for set time
             await asyncio.sleep(interval)
@@ -164,6 +164,13 @@ class ChargePointServer(Cp):
 
         # Check if new CP has valid vendor, model and serial number
         self.is_booted = _check_charger(**charging_station)
+
+        if self.is_booted:
+            if charging_station["serial_number"] in duplicated_clients:
+                duplicated_clients[charging_station["serial_number"]] = 1
+        else:
+            if charging_station["serial_number"] in duplicated_clients:
+                del duplicated_clients[charging_station["serial_number"]]
 
         return call_result.BootNotificationPayload(
             current_time=_get_current_time(),
@@ -346,7 +353,7 @@ async def on_connect(websocket, path):
         for item in connected_clients:
             if item[0] == charge_point_id:
                 logging.info(f"Client duplicated detected with id: {charge_point_id}")
-                duplicated_clients.append(charge_point_id)
+                duplicated_clients[charge_point_id] = 0
             if ALLOW_MULTIPLE_SERIAL_NUMBERS == 2:
                 connected_clients.remove(item)
 
