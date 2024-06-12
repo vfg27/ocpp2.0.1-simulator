@@ -18,7 +18,7 @@ bash install.sh
 ```
 3. **Use the virtual environment installed and choose its python interpreter**
 4. **Modify the server_config.yaml with the configuration that you prefer (inside the charging folder)**
-5. **Execute the server.py and client.py scripts**: There are also some possible attacks scripts to this implementation in the scenarios folders. You have to execute them according to the security profile chosen.
+5. **Execute the server.py and client.py scripts**: There are also some possible attacks scripts to this implementation in the scenarios folders. You have to execute them according to the security profile chosen. You should also modify the code to make the server listen to the address of your computer/Virtual machine and the client to communicate to that address.
 
 ## Mininet
 
