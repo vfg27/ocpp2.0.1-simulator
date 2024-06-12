@@ -1,5 +1,5 @@
 h1 ip route add default via 192.168.20.16
 h2 ip route add default via 192.168.20.16
-sh ip addr add 192.168.20.16/24 dev s1
-sh ip link set s1 up
-sh iptables -t nat -A POSTROUTING -s 192.168.20.0/24 -o ens33 -j MASQUERADE
+s1 ip addr add 192.168.20.16/24 dev s1
+s1 ip link set s1 up
+s1 iptables -t nat -A POSTROUTING -s 192.168.20.0/24 -o ens33 -j MASQUERADE
