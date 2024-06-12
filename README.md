@@ -28,7 +28,7 @@ The simulator can run on **Mininet** or **IPMininet**. I have created a simple t
 pip install mininet
 pip install ipmininet
 ```
-2. Run the topology with one the following command
+2. Run the topology with one the following commands:
 ```
 python3 mininet/simple_topology.py
 python3 ipmininet/simple_topology.py
@@ -62,7 +62,7 @@ Other implementation done is the possibility of having multiple hosts in a Minin
 pip install mininet
 pip install ipmininet
 ```
-2. Run the topology with one the following command
+2. Run the topology with one the following commands:
 ```
 python3 mininet/simple_topology.py
 python3 ipmininet/simple_topology.py
