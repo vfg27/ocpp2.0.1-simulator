@@ -35,21 +35,21 @@ python3 ipmininet/simple_topology.py
 ```
 
 3. Launch the server in one host with this commands (you should modify the code to add the IP address of the host):
-   3.1 From the Mininet/IPMininet terminal:
+   * From the Mininet/IPMininet terminal:
     ```
     xterm h1
     ```
-  3.2 From the opened host terminal:
+   * From the opened host terminal:
     ```
     source venv/bin/activate
     python3 charging/server.py
     ```
 4. Launch the client in one host with this  command (you should modify the code to add the IP address where the server is listening):
-   3.1 From the Mininet/IPMininet terminal:
+   * From the Mininet/IPMininet terminal:
     ```
     xterm h2
     ```
-  3.2 From the opened host terminal:
+   * From the opened host terminal:
     ```
     source venv/bin/activate
     python3 charging/client.py
@@ -74,12 +74,12 @@ source venv/bin/activate
 python3 charging/server.py
 ```
 4. Launch the client in the hosts with this  command (you should modify the code to add the IP address where the server is listening):
-   3.1 From the Mininet/IPMininet terminal:
+   * From the Mininet/IPMininet terminal:
     ```
     xterm h1
     ...
     ```
-  3.2 From the opened hosts terminals:
+   * From the opened hosts terminals:
     ```
     source venv/bin/activate
     python3 charging/client.py
