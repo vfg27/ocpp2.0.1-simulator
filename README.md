@@ -20,5 +20,75 @@ bash install.sh
 4. **Modify the server_config.yaml with the configuration that you prefer (inside the charging folder)**
 5. **Execute the server.py and client.py scripts**: There are also some possible attacks scripts to this implementation in the scenarios folders. You have to execute them according to the security profile chosen.
 
+## Mininet
+
+The simulator can run on **Mininet** or **IPMininet**. I have created a simple topology to test the simulation but it works also on more complicated topologies. For it to work you have to:
+1. Install Mininet/IPmininet:
+```
+pip install mininet
+pip install ipmininet
+```
+2. Run the topology with one the following command
+```
+python3 mininet/simple_topology.py
+python3 ipmininet/simple_topology.py
+```
+
+3. Launch the server in one host with this commands (you should modify the code to add the IP address of the host):
+   3.1 From the Mininet/IPMininet terminal:
+    ```
+    xterm h1
+    ```
+  3.2 From the opened host terminal:
+    ```
+    source venv/bin/activate
+    python3 charging/server.py
+    ```
+4. Launch the client in one host with this  command (you should modify the code to add the IP address where the server is listening):
+   3.1 From the Mininet/IPMininet terminal:
+    ```
+    xterm h2
+    ```
+  3.2 From the opened host terminal:
+    ```
+    source venv/bin/activate
+    python3 charging/client.py
+    ```
+
+Other implementation done is the possibility of having multiple hosts in a Mininet/IPMininet Virtual Machine and the server running in another Virtual Machine (I tried this on **VMWare**).  In order to make It work you should do:
+
+1. Install Mininet/IPmininet in the first machine:
+```
+pip install mininet
+pip install ipmininet
+```
+2. Run the topology with one the following command
+```
+python3 mininet/simple_topology.py
+python3 ipmininet/simple_topology.py
+```
+
+3. Launch the server in the second Virtual Machine. You can do it as before or, if you want to do it from a terminal, you can do:
+```
+source venv/bin/activate
+python3 charging/server.py
+```
+4. Launch the client in the hosts with this  command (you should modify the code to add the IP address where the server is listening):
+   3.1 From the Mininet/IPMininet terminal:
+    ```
+    xterm h1
+    ...
+    ```
+  3.2 From the opened hosts terminals:
+    ```
+    source venv/bin/activate
+    python3 charging/client.py
+    ```
+5. Configure Mininet. From its terminal you should run:
+```
+source routes.mn
+```
+
+It is important to notice that this last feature only works with **IPv4** addresses, so, you should modify the code so make the server listen to a IPv4 address.
 
 We appreciate you choosing this OCPP Simulator to meet your needs for simulation and testing. Savor the smooth charging process! :)
