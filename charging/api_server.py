@@ -26,6 +26,7 @@ def reserve_now(serial_number: str):
     
     # Add event to DB
     add_event('reserve_now', serial_number, token)
+    print('añadido')
 
     return _get_message('OK')
 

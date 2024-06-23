@@ -14,6 +14,9 @@ accepted_chargers:
     model: 'E2508'
     serial_number_regex: '^E2508-[0-9]{4}-[0-9]{4}$'
 
+# Possible values: 'v2_0_1', 'v2_0' 'v1_6'
+version: 'v2_0_1'
+
 security:
   profile: 3
   # allow_multiple_serial_numbers: 0 (No) | 1 (Yes) | 2 (No, but allows to steal)

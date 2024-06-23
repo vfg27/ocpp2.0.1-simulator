@@ -4,7 +4,23 @@ sys.path.append('.')
 import asyncio
 import logging
 
-from charging.client.client2 import launch_client, get_host_and_port, ChargePointClient
+import yaml
+CONFIG_FILE = 'charging/server_config.yaml'
+# Open server config file
+with open(CONFIG_FILE, "r") as file: 
+    try:
+        # Parse YAML content
+        content = yaml.safe_load(file)
+
+        if "version" in content:
+            VERSION = content["version"]
+    except yaml.YAMLError as e:
+        print('Failed to parse server_config.yaml')
+
+if VERSION == 'v2_0_1':
+    from charging.client.v2_0_1.client2 import launch_client, get_host_and_port, ChargePointClient
+elif VERSION == 'v1_6':
+    from charging.client.v1_6.client2 import launch_client, get_host_and_port, ChargePointClient
 
 
 async def wrong_token(cp: ChargePointClient):

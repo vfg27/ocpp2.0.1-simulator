@@ -5,7 +5,24 @@ import asyncio
 import logging
 from uuid import uuid4
 
-from charging.client.client1 import ChargePointClient, launch_client, get_host_and_port, wait_for_button_press
+import yaml
+CONFIG_FILE = 'charging/server_config.yaml'
+# Open server config file
+with open(CONFIG_FILE, "r") as file: 
+    try:
+        # Parse YAML content
+        content = yaml.safe_load(file)
+
+        if "version" in content:
+            VERSION = content["version"]
+    except yaml.YAMLError as e:
+        print('Failed to parse server_config.yaml')
+
+if VERSION == 'v2_0_1':
+    from charging.client.v2_0_1.client1 import launch_client, get_host_and_port, ChargePointClient, wait_for_button_press
+elif VERSION == 'v1_6':
+    from charging.client.v1_6.client1 import launch_client, get_host_and_port, ChargePointClient, wait_for_button_press
+
 
 logging.basicConfig(level=logging.ERROR)
 
